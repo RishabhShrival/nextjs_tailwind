@@ -1,56 +1,106 @@
+"use client";
+import { ProductCard } from "@/components/card";
 import Image from "next/image";
+import { use, useEffect } from "react";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    // Add JavaScript to handle parallax effect on scroll
+    const handleScroll = () => {
+      const parallaxElements = document.querySelectorAll('.parallax-bg');
+      parallaxElements.forEach((element) => {
+        const scrollPosition = window.pageYOffset;
+        const viewportHeight = window.innerHeight;
+
+        // Get element's position relative to viewport
+        const rect = element.getBoundingClientRect();
+        const elementTop = rect.top + scrollPosition;
+
+        // Calculate translateY with scroll
+        let translateY = scrollPosition * 0.3;
+
+        // Get responsive limits from CSS custom properties or calculate defaults
+        const computedStyle = getComputedStyle(element);
+        const maxUpwardVh = parseFloat(computedStyle.getPropertyValue('--max-up-vh')) || 10;
+        const maxDownwardVh = parseFloat(computedStyle.getPropertyValue('--max-down-vh')) || 10;
+
+        // Convert vh to pixels
+        const maxUpwardTranslate = -(viewportHeight + 550) * maxUpwardVh / 100;
+        const maxDownwardTranslate = (viewportHeight + 550) * maxDownwardVh / 100;
+
+        // Ensure element doesn't go above the viewport top
+        const minTranslateToStayVisible = Math.max(maxUpwardTranslate, -elementTop);
+
+        // Check if translateY exceeds limits and fix position
+        if (translateY <= maxUpwardTranslate) {
+          // Fix at upper limit with position fixed
+          element.style.position = 'fixed';
+          element.style.top = '0';
+        } else if (translateY >= maxDownwardTranslate) {
+          element.style.position = 'fixed';
+          element.style.top = '0';
+        } else {
+          // Normal parallax movement within limits - reset to relative positioning
+          element.style.position = 'relative';
+          element.style.transform = `translateY(${translateY}px)`;
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+
+    // Cleanup event listener on component unmount
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen my-2 sm:mx-25 font-[family-name:var(--font-geist-sans)] bg-indigo-950">
+      <section id="home" className="bg-[url('/hero.jpg')] bg-cover bg-center h-screen flex flex-col items-center justify-center text-center">
+        <div className="parallax-bg text-5xl font-bold text-white" style={{ "--max-up-vh": "15", "--max-down-vh": "8" }}>
+          <div className="flex flex-row place-items-baseline">
+          <img src="/logo.jpg" alt="Logo" className="w-9.5 h-auto" />
+          <h1>
+            ROYOMBER
+          </h1>
+          </div>
         </div>
-      </main>
+      </section>
+
+      <section id="product" className="h-screen flex flex-col items-center justify-center text-center">
+        <h2 className="text-3xl font-semibold text-white mb-4">
+          Products
+        </h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 w-full">
+        <ProductCard id={1} image="/products/product1.jpg" title="Luxury Watch" description="A premium watch crafted with precision and elegance." alt="Luxury Watch" className="mb-4" />
+        <ProductCard id={2} image="/products/product2.jpeg" title="Designer Handbag" description="A stylish handbag made from the finest leather." alt="Designer Handbag" className="mb-4" />
+        <ProductCard id={3} image="/products/product3.jpeg" title="Elegant Shoes" description="Handcrafted shoes that combine comfort and style." alt="Elegant Shoes" className="mb-4" />
+        </div>
+      </section>
+
+      <section id="ads" className="h-screen flex flex-col items-center justify-center text-center">
+        <h2 className="text-3xl font-semibold text-white mb-4">
+          Ads
+        </h2>
+        <p className="text-lg text-white">
+          This template is designed to help you get started quickly with Next.js and Tailwind CSS.
+          It includes a responsive layout, a simple navigation structure, and a clean design.
+        </p>
+      </section>
+
+      <section id="about" className="h-screen flex flex-col items-center justify-center text-center">
+        <h2 className="text-3xl font-semibold text-white mb-4">
+          About
+        </h2>
+        <p className="text-lg text-white">
+          Royomber is a luxury brand that specializes in high-end fashion and accessories.
+          Our products are crafted with the finest materials and attention to detail, ensuring that each piece is truly unique.
+        </p>
+      </section>
+
+
       <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4"
