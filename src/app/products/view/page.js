@@ -1,10 +1,10 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import Image from 'next/image';
 
-export default function ProductViewPage() {
+function ProductViewPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const productId = parseInt(searchParams?.get('id')) || 0;
@@ -351,5 +351,28 @@ export default function ProductViewPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div style={{
+      background: '#181828',
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#e6c87b'
+    }}>
+      <div>Loading product details...</div>
+    </div>
+  );
+}
+
+export default function ProductViewPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <ProductViewPageContent />
+    </Suspense>
   );
 }

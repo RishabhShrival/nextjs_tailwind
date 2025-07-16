@@ -185,7 +185,7 @@ export default function AboutPage() {
             color: '#e5d9b6',
             marginBottom: '0.7rem'
           }}>
-            Every ROYOMBER umbrella is hand-crafted using the world's finest materials:
+            Every ROYOMBER umbrella is hand-crafted using the world&apos;s finest materials:
             <ul style={{ margin: '1.2rem 0 0 1.2rem', color: '#e5d9b6', fontSize: '1.01rem' }}>
               <li>Carbon fiber rods for ultra-light strength</li>
               <li>Solid brass fittings for timeless elegance</li>
@@ -235,7 +235,7 @@ export default function AboutPage() {
             marginBottom: '1.2rem',
             letterSpacing: '0.03em'
           }}>
-            Founder's Note
+            Founder&apos;s Note
           </div>
           <div style={{
             borderLeft: '3px solid #c3a46b',

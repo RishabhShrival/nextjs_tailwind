@@ -1,10 +1,10 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 
-export default function PaymentPage() {
+function PaymentPageContent() {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -520,5 +520,28 @@ export default function PaymentPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function LoadingFallback() {
+  return (
+    <div style={{
+      background: '#181828',
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      color: '#e6c87b'
+    }}>
+      <div>Loading payment details...</div>
+    </div>
+  );
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense fallback={<LoadingFallback />}>
+      <PaymentPageContent />
+    </Suspense>
   );
 }
