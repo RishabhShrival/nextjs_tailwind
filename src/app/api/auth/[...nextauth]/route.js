@@ -32,10 +32,11 @@ const handler = NextAuth({
               }
             }
           } catch (sheetsError) {
-            console.log('Google Sheets not configured, using fallback auth');
+            console.log('Google Sheets authentication failed:', sheetsError.message);
+            // Don't throw, just continue to fallback
           }
           
-          // Fallback to demo user if sheets not configured
+          // Fallback to demo user if sheets not configured or failed
           if (credentials?.email === 'demo@royomber.com' && credentials?.password === 'demo123') {
             return {
               id: 'demo_user',
@@ -45,9 +46,12 @@ const handler = NextAuth({
               lastName: 'User'
             }
           }
+          
+          // For any other credential combination, return null (auth failed)
+          return null;
         } catch (error) {
           console.error('Auth error:', error);
-          // Fallback to demo user on database errors
+          // Return null instead of throwing to prevent crashes
           if (credentials?.email === 'demo@royomber.com' && credentials?.password === 'demo123') {
             return {
               id: 'demo_user',
