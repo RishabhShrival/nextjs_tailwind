@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function ProductsPage() {
   const router = useRouter();
@@ -123,9 +124,11 @@ export default function ProductsPage() {
               overflow: 'hidden',
               border: '2px solid #e6c87b33'
             }}>
-              <img 
+              <Image 
                 src="/products/product1.jpg" 
                 alt="Heritage V1"
+                width={280}
+                height={280}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -267,9 +270,11 @@ export default function ProductsPage() {
               overflow: 'hidden',
               border: '2px solid #e6c87b33'
             }}>
-              <img 
+              <Image 
                 src="/products/product2.jpeg" 
                 alt="R-cres Series"
+                width={280}
+                height={280}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -411,9 +416,11 @@ export default function ProductsPage() {
               overflow: 'hidden',
               border: '2px solid #e6c87b33'
             }}>
-              <img 
+              <Image 
                 src="/products/product3.jpeg" 
                 alt="Elite Pro"
+                width={280}
+                height={280}
                 style={{
                   width: '100%',
                   height: '100%',
@@ -555,9 +562,11 @@ export default function ProductsPage() {
               overflow: 'hidden',
               border: '2px solid #e6c87b33'
             }}>
-              <img 
+              <Image 
                 src="/products/product1.jpg" 
                 alt="Royal Classic"
+                width={280}
+                height={280}
                 style={{
                   width: '100%',
                   height: '100%',

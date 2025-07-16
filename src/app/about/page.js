@@ -101,7 +101,7 @@ export default function AboutPage() {
             fontStyle: 'italic',
             marginBottom: '2.2rem'
           }}>
-            Luxury isn't loud. It's deeply personal — just like ROYOMBER.
+            Luxury isn&apos;t loud. It&apos;s deeply personal — just like ROYOMBER.
           </div>
           <div style={{
             color: '#b3a58e',
@@ -161,11 +161,11 @@ export default function AboutPage() {
             color: '#e5d9b6',
             marginBottom: '0.7rem'
           }}>
-            We don't believe in shouting luxury.<br />
+            We don&apos;t believe in shouting luxury.<br />
             We believe in <strong style={{ color: '#c3a46b' }}>Balanced Luxury</strong> — a space between rarity and experience.<br /><br />
             ROYOMBER is not made for everyone. It is created for those who value silence, precision, and soul.<br />
-            That's why we release limited pieces.<br />
-            That's why we focus more on feel than fame.
+            That&apos;s why we release limited pieces.<br />
+            That&apos;s why we focus more on feel than fame.
           </div>
         </section>
 
@@ -244,9 +244,9 @@ export default function AboutPage() {
             marginBottom: '1.2rem',
             color: '#b3a58e'
           }}>
-            "For me, ROYOMBER is not a business. It is a mindset — of grace, of depth, of design.<br /><br />
+            &quot;For me, ROYOMBER is not a business. It is a mindset — of grace, of depth, of design.<br /><br />
             I created this brand for those who still notice the little things.<br />
-            For those who don't just carry a product — they carry pride."
+            For those who don&apos;t just carry a product — they carry pride.&quot;
             <div style={{
               marginTop: '0.5rem',
               fontWeight: 600,
@@ -308,7 +308,7 @@ export default function AboutPage() {
             fontWeight: 600,
             marginBottom: '1.5rem'
           }}>
-            ROYOMBER is not for everyone. And that's the point.<br />
+            ROYOMBER is not for everyone. And that&apos;s the point.<br />
             If you understand it — welcome to our world.
           </div>
           <div style={{

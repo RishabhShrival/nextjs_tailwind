@@ -197,7 +197,7 @@ export const priceRanges = [
   { label: 'Above ₹5,000', min: 5000, max: Infinity }
 ]
 
-export default {
+const productsData = {
   products,
   umbrellaCustomization,
   getActiveProducts,
@@ -207,4 +207,6 @@ export default {
   getCustomizationSummary,
   categories,
   priceRanges
-}
+};
+
+export default productsData;

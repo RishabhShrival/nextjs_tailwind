@@ -95,7 +95,9 @@ export const getUserByEmail = async (email) => {
   }
 };
 
-export default {
+const sheetsDB = {
   createUser,
   getUserByEmail
 };
+
+export default sheetsDB;

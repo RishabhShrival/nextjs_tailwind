@@ -257,7 +257,7 @@ export default function SignIn() {
             color: '#cccccc',
             marginBottom: '1rem'
           }}>
-            Don't have an account?
+            Don&apos;t have an account?
           </p>
           <Link
             href="/auth/signup"

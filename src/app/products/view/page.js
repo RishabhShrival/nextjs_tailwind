@@ -2,6 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function ProductViewPage() {
   const searchParams = useSearchParams();
@@ -153,9 +154,11 @@ export default function ProductViewPage() {
                   }}
                   onClick={() => openZoomModal(image)}
                 >
-                  <img 
+                  <Image 
                     src={image}
                     alt={product.name}
+                    width={150}
+                    height={150}
                     style={{
                       width: '100%',
                       height: '100%',
@@ -301,9 +304,11 @@ export default function ProductViewPage() {
           >
             &times;
           </span>
-          <img
+          <Image
             src={zoomedImage}
             alt="Zoomed product"
+            width={800}
+            height={600}
             style={{
               margin: 'auto',
               display: 'block',
