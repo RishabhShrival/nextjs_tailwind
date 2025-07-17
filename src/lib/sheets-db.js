@@ -63,6 +63,7 @@ export const createUser = async (userData) => {
     const newUser = {
       user_id: `USER_${Date.now()}`,
       email: userData.email,
+      password: userData.password, // Store password (consider hashing in production)
       first_name: userData.firstName,
       last_name: userData.lastName,
       phone: userData.phone || '',
@@ -75,7 +76,7 @@ export const createUser = async (userData) => {
 
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEETS.USERS}!A:J`,
+      range: `${SHEETS.USERS}!A:K`, // Updated to K to include password column
       valueInputOption: 'RAW',
       resource: {
         values: [Object.values(newUser)]
@@ -101,7 +102,7 @@ export const getUserByEmail = async (email) => {
 
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEETS.USERS}!A:J`,
+      range: `${SHEETS.USERS}!A:K`, // Updated to include password column
     });
 
     const rows = response.data.values;

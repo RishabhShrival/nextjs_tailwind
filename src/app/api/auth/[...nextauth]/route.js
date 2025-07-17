@@ -18,9 +18,8 @@ const handler = NextAuth({
             const user = await getUserByEmail(credentials?.email);
             
             if (user && user.is_active === 'TRUE') {
-              // In production, you'd verify password hash here
-              // For now, demo password check
-              if (credentials?.password === 'demo123') {
+              // Check if password matches the one stored in Google Sheets
+              if (credentials?.password && credentials.password === user.password) {
                 return {
                   id: user.user_id,
                   email: user.email,

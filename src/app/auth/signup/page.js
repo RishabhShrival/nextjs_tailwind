@@ -59,7 +59,8 @@ export default function SignUp() {
             firstName: formData.firstName,
             lastName: formData.lastName,
             email: formData.email,
-            phone: formData.phone
+            phone: formData.phone,
+            password: formData.password // Include password in the data
           }
         })
       })
