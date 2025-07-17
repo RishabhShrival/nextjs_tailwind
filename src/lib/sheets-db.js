@@ -120,9 +120,156 @@ export const getUserByEmail = async (email) => {
   }
 };
 
+// PRODUCT OPERATIONS
+export const createProduct = async (productData) => {
+  try {
+    if (!process.env.GOOGLE_SHEET_ID || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+      console.log('Google Sheets credentials not configured');
+      return null;
+    }
+
+    const sheets = initializeSheets();
+    
+    const newProduct = {
+      id: productData.id,
+      name: productData.name,
+      description: productData.description,
+      base_price: productData.basePrice,
+      category: productData.category,
+      image_url: productData.imageUrl,
+      features: JSON.stringify(productData.features), // Store as JSON string
+      stock_quantity: productData.stockQuantity,
+      is_active: productData.isActive ? 'TRUE' : 'FALSE',
+      weight: productData.weight,
+      dimensions: productData.dimensions,
+      warranty_period: productData.warrantyPeriod,
+      materials: JSON.stringify(productData.materials), // Store as JSON string
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEETS.PRODUCTS}!A:N`, // A to N for all product columns
+      valueInputOption: 'RAW',
+      resource: {
+        values: [Object.values(newProduct)]
+      }
+    });
+
+    return newProduct;
+  } catch (error) {
+    console.log('Google Sheets product creation failed:', error.message);
+    return null;
+  }
+};
+
+export const getAllProducts = async () => {
+  try {
+    if (!process.env.GOOGLE_SHEET_ID || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+      console.log('Google Sheets credentials not configured');
+      return [];
+    }
+
+    const sheets = initializeSheets();
+
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEETS.PRODUCTS}!A:N`,
+    });
+
+    const rows = response.data.values;
+    if (!rows || rows.length === 0) return [];
+
+    const headers = rows[0];
+    const productRows = rows.slice(1); // Skip header row
+    
+    return productRows.map(row => {
+      const product = arrayToObject(headers, row);
+      
+      // Convert JSON strings back to objects/arrays
+      if (product.features) {
+        try {
+          product.features = JSON.parse(product.features);
+        } catch (e) {
+          product.features = [];
+        }
+      }
+      
+      if (product.materials) {
+        try {
+          product.materials = JSON.parse(product.materials);
+        } catch (e) {
+          product.materials = {};
+        }
+      }
+      
+      // Convert string values to appropriate types
+      product.base_price = parseInt(product.base_price) || 0;
+      product.stock_quantity = parseInt(product.stock_quantity) || 0;
+      product.is_active = product.is_active === 'TRUE';
+      
+      // Map sheet column names to product object names
+      return {
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        basePrice: product.base_price,
+        category: product.category,
+        imageUrl: product.image_url,
+        features: product.features,
+        stockQuantity: product.stock_quantity,
+        isActive: product.is_active,
+        weight: product.weight,
+        dimensions: product.dimensions,
+        warrantyPeriod: product.warranty_period,
+        materials: product.materials
+      };
+    });
+  } catch (error) {
+    console.log('Google Sheets product retrieval failed:', error.message);
+    return [];
+  }
+};
+
+export const getProductById = async (productId) => {
+  try {
+    const products = await getAllProducts();
+    return products.find(product => product.id === productId) || null;
+  } catch (error) {
+    console.log('Google Sheets product retrieval failed:', error.message);
+    return null;
+  }
+};
+
+export const getActiveProducts = async () => {
+  try {
+    const products = await getAllProducts();
+    return products.filter(product => product.isActive);
+  } catch (error) {
+    console.log('Google Sheets product retrieval failed:', error.message);
+    return [];
+  }
+};
+
+export const getProductsByCategory = async (category) => {
+  try {
+    const products = await getAllProducts();
+    return products.filter(product => product.category === category && product.isActive);
+  } catch (error) {
+    console.log('Google Sheets product retrieval failed:', error.message);
+    return [];
+  }
+};
+
 const sheetsDB = {
   createUser,
-  getUserByEmail
+  getUserByEmail,
+  createProduct,
+  getAllProducts,
+  getProductById,
+  getActiveProducts,
+  getProductsByCategory
 };
 
 export default sheetsDB;

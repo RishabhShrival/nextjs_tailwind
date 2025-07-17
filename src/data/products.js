@@ -1,7 +1,11 @@
 // ROYOMBER Product Database
 // Centralized product management system
+// Now fetches data from Google Sheets
 
-export const products = [
+import { getAllProducts, getActiveProducts as getSheetsActiveProducts, getProductById as getSheetsProductById, getProductsByCategory as getSheetsProductsByCategory } from '@/lib/sheets-db';
+
+// Static data as fallback (will be moved to Google Sheets)
+export const staticProducts = [
   {
     id: 'ROY001',
     name: 'The Royal Classic',
@@ -82,6 +86,9 @@ export const products = [
   }
 ]
 
+// For backwards compatibility, export the static data as 'products'
+export const products = staticProducts;
+
 // Umbrella customization options
 export const umbrellaCustomization = {
   handles: [
@@ -111,17 +118,46 @@ export const umbrellaCustomization = {
   }
 }
 
-// Helper functions
-export const getActiveProducts = () => {
-  return products.filter(product => product.isActive)
+// Helper functions - now async to fetch from Google Sheets
+export const getActiveProducts = async () => {
+  try {
+    const sheetProducts = await getSheetsActiveProducts();
+    return sheetProducts.length > 0 ? sheetProducts : staticProducts.filter(product => product.isActive);
+  } catch (error) {
+    console.log('Falling back to static products:', error.message);
+    return staticProducts.filter(product => product.isActive);
+  }
 }
 
-export const getProductById = (id) => {
-  return products.find(product => product.id === id)
+export const getProductById = async (id) => {
+  try {
+    const sheetProduct = await getSheetsProductById(id);
+    return sheetProduct || staticProducts.find(product => product.id === id);
+  } catch (error) {
+    console.log('Falling back to static products:', error.message);
+    return staticProducts.find(product => product.id === id);
+  }
 }
 
-export const getProductsByCategory = (category) => {
-  return products.filter(product => product.category === category && product.isActive)
+export const getProductsByCategory = async (category) => {
+  try {
+    const sheetProducts = await getSheetsProductsByCategory(category);
+    return sheetProducts.length > 0 ? sheetProducts : staticProducts.filter(product => product.category === category && product.isActive);
+  } catch (error) {
+    console.log('Falling back to static products:', error.message);
+    return staticProducts.filter(product => product.category === category && product.isActive);
+  }
+}
+
+// New function to get all products from sheets with fallback
+export const getAllProductsFromSheets = async () => {
+  try {
+    const sheetProducts = await getAllProducts();
+    return sheetProducts.length > 0 ? sheetProducts : staticProducts;
+  } catch (error) {
+    console.log('Falling back to static products:', error.message);
+    return staticProducts;
+  }
 }
 
 export const calculateCustomizationPrice = (basePrice, customizations) => {
@@ -199,10 +235,12 @@ export const priceRanges = [
 
 const productsData = {
   products,
+  staticProducts,
   umbrellaCustomization,
   getActiveProducts,
   getProductById,
   getProductsByCategory,
+  getAllProductsFromSheets,
   calculateCustomizationPrice,
   getCustomizationSummary,
   categories,

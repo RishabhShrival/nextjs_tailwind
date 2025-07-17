@@ -1,88 +1,97 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import Image from 'next/image';
 
 function ProductViewPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const productId = parseInt(searchParams?.get('id')) || 0;
+  const productId = searchParams?.get('id');
   
-  // Products data (complete data for all products)
-  const products = [
-    {
-      id: 0,
-      name: "Heritage V1",
-      serial: "HV-001",
-      price: "₹13,500",
-      fabric: "Premium Waterproof Polyester",
-      leather: "Italian Dreamtarian Leather",
-      material: "Carbon Fiber Frame, Brass Hardware",
-      mechanism: "Manual Open, Steel Ribs",
-      description: "Handcrafted with precision using carbon fiber shaft, Italian leather grip and full UV protection. Built for timeless elegance.",
-      images: [
-        "/products/product1.jpg",
-        "/products/product2.jpeg",
-        "/products/product3.jpeg",
-        "/products/product1.jpg"
-      ]
-    },
-    {
-      id: 1,
-      name: "R-cres Series",
-      serial: "RC-101",
-      price: "₹16,300",
-      fabric: "Windproof High-Density Nylon",
-      leather: "Premium Vegan Leather",
-      material: "Aluminum Alloy Frame, Brass Accents",
-      mechanism: "Auto Open/Close",
-      description: "R-cres Series umbrellas feature advanced wind resistance, premium materials, and personalized monogram options. For those who desire innovation with luxury.",
-      images: [
-        "/products/product2.jpeg",
-        "/products/product1.jpg",
-        "/products/product3.jpeg",
-        "/products/product2.jpeg"
-      ]
-    },
-    {
-      id: 2,
-      name: "Elite Pro",
-      serial: "EP-202",
-      price: "₹18,500",
-      fabric: "Ultra-lightweight Carbon Weave",
-      leather: "Hand-stitched Genuine Leather",
-      material: "Titanium Frame, Gold Accents",
-      mechanism: "Smart Auto Open/Close",
-      description: "The pinnacle of umbrella engineering. Elite Pro combines cutting-edge materials with traditional craftsmanship for the ultimate luxury experience.",
-      images: [
-        "/products/product3.jpeg",
-        "/products/product1.jpg",
-        "/products/product2.jpeg",
-        "/products/product3.jpeg"
-      ]
-    },
-    {
-      id: 3,
-      name: "Royal Classic",
-      serial: "RC-303",
-      price: "₹16,300",
-      fabric: "British Waterproof Canvas",
-      leather: "Classic Oak Handle",
-      material: "Steel Frame, Silver Details",
-      mechanism: "Traditional Manual",
-      description: "Timeless design meets modern functionality. The Royal Classic embodies traditional British umbrella craftsmanship with contemporary materials.",
-      images: [
-        "/products/product1.jpg",
-        "/products/product3.jpeg",
-        "/products/product2.jpeg",
-        "/products/product1.jpg"
-      ]
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (productId) {
+      fetchProduct();
     }
-  ];
-  
-  // Find the product by id
-  const product = products.find(p => p.id === productId) || products[0];
+  }, [productId]);
+
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`/api/products`);
+      const data = await response.json();
+      
+      if (data.success) {
+        const foundProduct = data.products.find(p => p.id === productId);
+        if (foundProduct) {
+          setProduct(foundProduct);
+        } else {
+          setError('Product not found');
+        }
+      } else {
+        setError('Failed to load product');
+      }
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      setError('Error loading product');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{
+        background: '#181828',
+        color: '#e6c87b',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
+          <p>Loading product details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <div style={{
+        background: '#181828',
+        color: '#e6c87b',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⚠️</div>
+          <p>{error || 'Product not found'}</p>
+          <button 
+            onClick={() => router.push('/products')}
+            style={{
+              background: '#e6c87b',
+              color: '#181828',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              marginTop: '1rem'
+            }}
+          >
+            Back to Products
+          </button>
+        </div>
+      </div>
+    );
+  }
   
   const [zoomModalOpen, setZoomModalOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState('');
@@ -97,9 +106,13 @@ function ProductViewPageContent() {
   };
 
   const goToPayment = () => {
-    const price = product.price.replace('₹', '').replace(',', '');
+    const price = product.basePrice?.toString() || '0';
     router.push(`/payment?name=${encodeURIComponent(product.name)}&price=${price}`);
   };
+
+  // For now, we'll use the single imageUrl from Google Sheets
+  // In the future, you could add an image gallery field to the sheets
+  const productImages = product.imageUrl ? [product.imageUrl] : ['/products/product1.jpg'];
 
   return (
     <div style={{
@@ -137,7 +150,7 @@ function ProductViewPageContent() {
               gap: '12px',
               padding: '5px 0'
             }}>
-              {product.images.map((image, index) => (
+              {productImages.map((image, index) => (
                 <div 
                   key={index}
                   style={{
@@ -185,7 +198,7 @@ function ProductViewPageContent() {
             color: '#fffbe6',
             marginBottom: '28px'
           }}>
-            Serial No: {product.serial}
+            Product ID: {product.id}
           </div>
           
           <table style={{
@@ -196,36 +209,64 @@ function ProductViewPageContent() {
             <tbody>
               <tr style={{ background: '#232340' }}>
                 <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
-                  <b>Fabric</b>
+                  <b>Category</b>
                 </td>
                 <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
-                  {product.fabric}
+                  {product.category}
                 </td>
               </tr>
               <tr>
                 <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
-                  <b>Leather</b>
+                  <b>Weight</b>
                 </td>
                 <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
-                  {product.leather}
+                  {product.weight}
                 </td>
               </tr>
               <tr style={{ background: '#232340' }}>
                 <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
-                  <b>Material</b>
+                  <b>Dimensions</b>
                 </td>
                 <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
-                  {product.material}
+                  {product.dimensions}
                 </td>
               </tr>
               <tr>
                 <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
-                  <b>Mechanism</b>
+                  <b>Warranty</b>
                 </td>
                 <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
-                  {product.mechanism}
+                  {product.warrantyPeriod}
                 </td>
               </tr>
+              {product.materials && (
+                <>
+                  <tr style={{ background: '#232340' }}>
+                    <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
+                      <b>Canopy</b>
+                    </td>
+                    <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
+                      {product.materials.canopy}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
+                      <b>Handle</b>
+                    </td>
+                    <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
+                      {product.materials.handle}
+                    </td>
+                  </tr>
+                  <tr style={{ background: '#232340' }}>
+                    <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
+                      <b>Frame</b>
+                    </td>
+                    <td style={{ padding: '10px 14px', color: '#e6c87b', fontSize: '1.06rem' }}>
+                      {product.materials.frame}
+                    </td>
+                  </tr>
+                </>
+              )}
             </tbody>
           </table>
           
@@ -239,41 +280,103 @@ function ProductViewPageContent() {
             {product.description}
           </div>
           
+          {/* Features */}
+          {product.features && product.features.length > 0 && (
+            <div style={{
+              marginBottom: '30px',
+              padding: '0 10px'
+            }}>
+              <div style={{
+                fontSize: '1.1rem',
+                color: '#e6c87b',
+                fontWeight: 'bold',
+                marginBottom: '15px'
+              }}>
+                Key Features:
+              </div>
+              <ul style={{
+                listStyle: 'none',
+                padding: 0,
+                margin: 0
+              }}>
+                {product.features.map((feature, index) => (
+                  <li key={index} style={{
+                    color: '#fffbe6',
+                    fontSize: '1rem',
+                    marginBottom: '8px',
+                    paddingLeft: '20px',
+                    position: 'relative'
+                  }}>
+                    <span style={{
+                      position: 'absolute',
+                      left: '0',
+                      color: '#e6c87b'
+                    }}>
+                      ✓
+                    </span>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {/* Stock Status */}
+          {product.stockQuantity <= 5 && (
+            <div style={{
+              fontSize: '1rem',
+              color: product.stockQuantity === 0 ? '#ef4444' : '#f59e0b',
+              marginBottom: '20px',
+              fontWeight: 600,
+              textAlign: 'center'
+            }}>
+              {product.stockQuantity === 0 ? 'Out of Stock' : `Only ${product.stockQuantity} left in stock`}
+            </div>
+          )}
+          
           <div style={{
             fontSize: '1.32rem',
             color: '#fffbe6',
             fontWeight: 'bold',
             marginBottom: '32px'
           }}>
-            {product.price}
+            ₹{product.basePrice?.toLocaleString()}
           </div>
           
           <button
             onClick={goToPayment}
+            disabled={product.stockQuantity === 0}
             style={{
-              background: 'linear-gradient(90deg,#e6c87b 70%,#bfa045 100%)',
+              background: product.stockQuantity === 0 ? '#666' : 'linear-gradient(90deg,#e6c87b 70%,#bfa045 100%)',
               color: '#181828',
               border: 'none',
               padding: '16px 44px',
               borderRadius: '10px',
               fontSize: '1.13rem',
               fontWeight: 'bold',
-              cursor: 'pointer',
-              display: 'block',
-              margin: '0 auto',
-              transition: 'box-shadow 0.3s, transform 0.2s'
+              cursor: product.stockQuantity === 0 ? 'not-allowed' : 'pointer',
+              opacity: product.stockQuantity === 0 ? 0.6 : 1,
+              transition: 'all 0.3s ease',
+              marginBottom: '20px'
             }}
             onMouseOver={(e) => {
-              e.target.style.boxShadow = '0 0 18px 4px #e6c87b77';
-              e.target.style.transform = 'translateY(-2px) scale(1.04)';
+              if (product.stockQuantity > 0) {
+                e.target.style.transform = 'translateY(-3px) scale(1.05)';
+                e.target.style.boxShadow = '0 8px 25px rgba(230, 200, 123, 0.4)';
+              }
             }}
             onMouseOut={(e) => {
-              e.target.style.boxShadow = 'none';
-              e.target.style.transform = 'none';
+              if (product.stockQuantity > 0) {
+                e.target.style.transform = 'translateY(0) scale(1)';
+                e.target.style.boxShadow = 'none';
+              }
             }}
           >
-            BUY NOW
+            {product.stockQuantity === 0 ? 'OUT OF STOCK' : 'BUY NOW'}
           </button>
+              border: 'none',
+              padding: '16px 44px',
+              borderRadius: '10px',
         </div>
       </div>
 
