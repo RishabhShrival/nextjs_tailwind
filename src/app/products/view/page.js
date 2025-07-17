@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import Image from 'next/image';
 
 function ProductViewPageContent() {
@@ -12,14 +12,10 @@ function ProductViewPageContent() {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [zoomModalOpen, setZoomModalOpen] = useState(false);
+  const [zoomedImage, setZoomedImage] = useState('');
 
-  useEffect(() => {
-    if (productId) {
-      fetchProduct();
-    }
-  }, [productId]);
-
-  const fetchProduct = async () => {
+  const fetchProduct = useCallback(async () => {
     try {
       setLoading(true);
       const response = await fetch(`/api/products`);
@@ -41,7 +37,31 @@ function ProductViewPageContent() {
     } finally {
       setLoading(false);
     }
+  }, [productId]);
+
+  useEffect(() => {
+    if (productId) {
+      fetchProduct();
+    }
+  }, [productId, fetchProduct]);
+
+  const openZoomModal = (imageSrc) => {
+    setZoomedImage(imageSrc);
+    setZoomModalOpen(true);
   };
+
+  const closeZoomModal = () => {
+    setZoomModalOpen(false);
+  };
+
+  const goToPayment = () => {
+    const price = product.basePrice?.toString() || '0';
+    router.push(`/payment?name=${encodeURIComponent(product.name)}&price=${price}`);
+  };
+
+  // For now, we'll use the single imageUrl from Google Sheets
+  // In the future, you could add an image gallery field to the sheets
+  const productImages = product?.imageUrl ? [product.imageUrl] : ['/products/product1.jpg'];
 
   if (loading) {
     return (
@@ -92,27 +112,6 @@ function ProductViewPageContent() {
       </div>
     );
   }
-  
-  const [zoomModalOpen, setZoomModalOpen] = useState(false);
-  const [zoomedImage, setZoomedImage] = useState('');
-
-  const openZoomModal = (imageSrc) => {
-    setZoomedImage(imageSrc);
-    setZoomModalOpen(true);
-  };
-
-  const closeZoomModal = () => {
-    setZoomModalOpen(false);
-  };
-
-  const goToPayment = () => {
-    const price = product.basePrice?.toString() || '0';
-    router.push(`/payment?name=${encodeURIComponent(product.name)}&price=${price}`);
-  };
-
-  // For now, we'll use the single imageUrl from Google Sheets
-  // In the future, you could add an image gallery field to the sheets
-  const productImages = product.imageUrl ? [product.imageUrl] : ['/products/product1.jpg'];
 
   return (
     <div style={{
@@ -374,9 +373,6 @@ function ProductViewPageContent() {
           >
             {product.stockQuantity === 0 ? 'OUT OF STOCK' : 'BUY NOW'}
           </button>
-              border: 'none',
-              padding: '16px 44px',
-              borderRadius: '10px',
         </div>
       </div>
 

@@ -228,12 +228,12 @@ export default function SeedProducts() {
         }}>
           <h3 style={{ marginBottom: '0.5rem', fontWeight: '600' }}>Instructions:</h3>
           <ol style={{ paddingLeft: '1rem' }}>
-            <li>First, create a "Products" sheet in your Google Sheets with these column headers:</li>
+            <li>First, create a &quot;Products&quot; sheet in your Google Sheets with these column headers:</li>
             <ul style={{ marginLeft: '1rem', marginTop: '0.5rem' }}>
               <li><code>id | name | description | base_price | category | image_url | features | stock_quantity | is_active | weight | dimensions | warranty_period | materials | created_at | updated_at</code></li>
             </ul>
-            <li style={{ marginTop: '0.5rem' }}>Click "Seed Products to Google Sheets" to migrate your existing products</li>
-            <li style={{ marginTop: '0.5rem' }}>Click "Fetch Products from Sheets" to verify the data was saved correctly</li>
+            <li style={{ marginTop: '0.5rem' }}>Click &quot;Seed Products to Google Sheets&quot; to migrate your existing products</li>
+            <li style={{ marginTop: '0.5rem' }}>Click &quot;Fetch Products from Sheets&quot; to verify the data was saved correctly</li>
             <li style={{ marginTop: '0.5rem' }}>Once verified, your app will automatically use Google Sheets data instead of static data</li>
           </ol>
         </div>
