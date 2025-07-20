@@ -54,9 +54,41 @@ function ProductViewPageContent() {
     setZoomModalOpen(false);
   };
 
-  const goToPayment = () => {
-    const price = product.basePrice?.toString() || '0';
-    router.push(`/payment?name=${encodeURIComponent(product.name)}&price=${price}`);
+  const goToPayment = async () => {
+    if (product.stockQuantity === 0) return;
+    
+    try {
+      // Create order first
+      const orderData = {
+        productId: product.id,
+        productName: product.name,
+        quantity: 1,
+        unitPrice: product.basePrice,
+        totalAmount: product.basePrice,
+        paymentMethod: 'UPI'
+      };
+
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        // Redirect to payment with order ID
+        const price = product.basePrice?.toString() || '0';
+        router.push(`/payment?name=${encodeURIComponent(product.name)}&price=${price}&orderId=${data.orderId}&productId=${product.id}`);
+      } else {
+        alert('Failed to create order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error creating order:', error);
+      alert('Error creating order. Please try again.');
+    }
   };
 
   // For now, we'll use the single imageUrl from Google Sheets

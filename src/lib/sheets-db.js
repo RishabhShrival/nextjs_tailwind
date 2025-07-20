@@ -262,6 +262,142 @@ export const getProductsByCategory = async (category) => {
   }
 };
 
+// Order Management Functions
+export const createOrder = async (orderData) => {
+  try {
+    const sheets = await getAuthSheets();
+    
+    // Generate order ID
+    const orderId = `ORD${Date.now()}`;
+    const timestamp = new Date().toISOString();
+    
+    const rowData = [
+      orderId,
+      orderData.productId,
+      orderData.productName,
+      orderData.customerName || '',
+      orderData.customerEmail || '',
+      orderData.customerPhone || '',
+      orderData.customerAddress || '',
+      orderData.quantity || 1,
+      orderData.unitPrice || 0,
+      orderData.totalAmount || 0,
+      orderData.paymentMethod || 'UPI',
+      'PENDING', // payment_status
+      'PENDING', // order_status
+      orderData.upiTransactionId || '',
+      timestamp, // created_at
+      timestamp  // updated_at
+    ];
+
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEETS.ORDERS}!A:P`,
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [rowData]
+      }
+    });
+
+    return { success: true, orderId };
+  } catch (error) {
+    console.error('Error creating order:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const updateOrderStatus = async (orderId, updates) => {
+  try {
+    const sheets = await getAuthSheets();
+    
+    // Get all orders to find the row
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEETS.ORDERS}!A:P`
+    });
+
+    const rows = response.data.values || [];
+    if (rows.length === 0) return { success: false, error: 'No orders found' };
+
+    const headers = rows[0];
+    const orderIndex = rows.findIndex((row, index) => index > 0 && row[0] === orderId);
+    
+    if (orderIndex === -1) {
+      return { success: false, error: 'Order not found' };
+    }
+
+    // Update the order row
+    const rowNumber = orderIndex + 1;
+    const currentRow = rows[orderIndex];
+    
+    // Update specific fields
+    if (updates.paymentStatus) currentRow[11] = updates.paymentStatus;
+    if (updates.orderStatus) currentRow[12] = updates.orderStatus;
+    if (updates.upiTransactionId) currentRow[13] = updates.upiTransactionId;
+    currentRow[15] = new Date().toISOString(); // updated_at
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEETS.ORDERS}!A${rowNumber}:P${rowNumber}`,
+      valueInputOption: 'USER_ENTERED',
+      resource: {
+        values: [currentRow]
+      }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating order:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+export const getOrderById = async (orderId) => {
+  try {
+    const sheets = await getAuthSheets();
+    
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEETS.ORDERS}!A:P`
+    });
+
+    const rows = response.data.values || [];
+    if (rows.length === 0) return null;
+
+    const headers = rows[0];
+    const orderRow = rows.find((row, index) => index > 0 && row[0] === orderId);
+    
+    if (!orderRow) return null;
+
+    return arrayToObject(headers, orderRow);
+  } catch (error) {
+    console.error('Error fetching order:', error);
+    return null;
+  }
+};
+
+export const getAllOrders = async () => {
+  try {
+    const sheets = await getAuthSheets();
+    
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEETS.ORDERS}!A:P`
+    });
+
+    const rows = response.data.values || [];
+    if (rows.length === 0) return [];
+
+    const headers = rows[0];
+    const orders = rows.slice(1).map(row => arrayToObject(headers, row));
+    
+    return orders.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    return [];
+  }
+};
+
 const sheetsDB = {
   createUser,
   getUserByEmail,
@@ -269,7 +405,11 @@ const sheetsDB = {
   getAllProducts,
   getProductById,
   getActiveProducts,
-  getProductsByCategory
+  getProductsByCategory,
+  createOrder,
+  updateOrderStatus,
+  getOrderById,
+  getAllOrders
 };
 
 export default sheetsDB;
