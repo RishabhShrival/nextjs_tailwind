@@ -49,6 +49,35 @@ const arrayToObject = (headers, row) => {
   return obj;
 };
 
+// Utility function to convert Google Drive links to direct image URLs
+const convertDriveLink = (url) => {
+  if (!url) return url;
+  
+  // Check if it's a Google Drive link
+  const driveMatch = url.match(/(?:https?:\/\/)?(?:www\.)?drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  
+  if (driveMatch) {
+    const fileId = driveMatch[1];
+    // Convert to direct viewable link
+    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+  }
+  
+  return url; // Return original URL if not a Drive link
+};
+
+// Helper function to process product data and convert image URLs
+const processProductData = (product) => {
+  if (!product) return product;
+  
+  return {
+    ...product,
+    imageUrl: convertDriveLink(product.image_url || product.imageUrl),
+    // Convert other image fields if they exist
+    gallery_images: product.gallery_images ? 
+      product.gallery_images.split(',').map(img => convertDriveLink(img.trim())) : []
+  };
+};
+
 // USER OPERATIONS
 export const createUser = async (userData) => {
   try {
@@ -210,7 +239,7 @@ export const getAllProducts = async () => {
       product.is_active = product.is_active === 'TRUE';
       
       // Map sheet column names to product object names
-      return {
+      const mappedProduct = {
         id: product.id,
         name: product.name,
         description: product.description,
@@ -225,6 +254,9 @@ export const getAllProducts = async () => {
         warrantyPeriod: product.warranty_period,
         materials: product.materials
       };
+      
+      // Process and convert image URLs
+      return processProductData(mappedProduct);
     });
   } catch (error) {
     console.log('Google Sheets product retrieval failed:', error.message);

@@ -1,6 +1,23 @@
 # 🛒 **Payment Tracking System Setup**
 
-## 📋 **Google Sheets Structure Required**
+## �️ **Image URL Support for Google Drive Links**
+
+**Good news!** Your system now automatically converts Google Drive sharing links to direct image URLs.
+
+### **How to Use Drive Links:**
+
+1. **Upload image to Google Drive**
+2. **Right-click → Share → Change to "Anyone with the link"**
+3. **Copy the sharing link** (looks like: `https://drive.google.com/file/d/1ABC123xyz/view?usp=sharing`)
+4. **Paste directly into your Products sheet** - the system will auto-convert it!
+
+### **Test Your Images:**
+
+Visit `/admin/test-images` to test any image URL before adding it to your Products sheet.
+
+---
+
+## �📋 **Google Sheets Structure Required**
 
 ### **Orders Sheet** (Create a new tab called "Orders")
 
