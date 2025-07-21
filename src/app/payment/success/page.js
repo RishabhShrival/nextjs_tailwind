@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [orderDetails, setOrderDetails] = useState(null);
@@ -17,16 +17,7 @@ export default function PaymentSuccessPage() {
   const amount = searchParams.get('amount');
   const productName = searchParams.get('productName');
 
-  useEffect(() => {
-    if (orderId && transactionId) {
-      updatePaymentStatus();
-    } else {
-      setError('Missing payment information');
-      setLoading(false);
-    }
-  }, [orderId, transactionId]);
-
-  const updatePaymentStatus = async () => {
+  const updatePaymentStatus = useCallback(async () => {
     try {
       setLoading(true);
       
@@ -65,7 +56,16 @@ export default function PaymentSuccessPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId, transactionId]);
+
+  useEffect(() => {
+    if (orderId && transactionId) {
+      updatePaymentStatus();
+    } else {
+      setError('Missing payment information');
+      setLoading(false);
+    }
+  }, [orderId, transactionId, updatePaymentStatus]);
 
   if (loading) {
     return (
@@ -246,9 +246,9 @@ export default function PaymentSuccessPage() {
             listStyle: 'none',
             padding: 0
           }}>
-            <li>📧 You'll receive an order confirmation email shortly</li>
+            <li>📧 You&apos;ll receive an order confirmation email shortly</li>
             <li>📦 Your umbrella will be prepared for shipping</li>
-            <li>🚚 We'll notify you when your order ships</li>
+            <li>🚚 We&apos;ll notify you when your order ships</li>
             <li>🎯 Expected delivery: 3-5 business days</li>
           </ul>
         </div>
@@ -333,5 +333,27 @@ export default function PaymentSuccessPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense fallback={
+      <div style={{
+        background: '#181828',
+        color: '#e6c87b',
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '2rem', marginBottom: '1rem' }}>⏳</div>
+          <p>Loading payment details...</p>
+        </div>
+      </div>
+    }>
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

@@ -197,6 +197,7 @@ export default function ImageTestPage() {
                 </div>
               )}
 
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={convertedUrl}
                 alt="Test Image"
@@ -241,7 +242,7 @@ export default function ImageTestPage() {
           </div>
 
           <div>
-            <h4 style={{ color: '#ef4444', marginBottom: '0.5rem' }}>❌ What Doesn't Work:</h4>
+            <h4 style={{ color: '#ef4444', marginBottom: '0.5rem' }}>❌ What Doesn&apos;t Work:</h4>
             <ul style={{ color: '#cccccc', lineHeight: '1.6' }}>
               <li>Private Google Drive files</li>
               <li>Files requiring authentication</li>

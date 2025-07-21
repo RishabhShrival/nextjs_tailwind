@@ -297,7 +297,7 @@ export const getProductsByCategory = async (category) => {
 // Order Management Functions
 export const createOrder = async (orderData) => {
   try {
-    const sheets = await getAuthSheets();
+    const sheets = initializeSheets();
     
     // Generate order ID
     const orderId = `ORD${Date.now()}`;
@@ -340,7 +340,7 @@ export const createOrder = async (orderData) => {
 
 export const updateOrderStatus = async (orderId, updates) => {
   try {
-    const sheets = await getAuthSheets();
+    const sheets = initializeSheets();
     
     // Get all orders to find the row
     const response = await sheets.spreadsheets.values.get({
@@ -386,7 +386,7 @@ export const updateOrderStatus = async (orderId, updates) => {
 
 export const getOrderById = async (orderId) => {
   try {
-    const sheets = await getAuthSheets();
+    const sheets = initializeSheets();
     
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
@@ -410,7 +410,7 @@ export const getOrderById = async (orderId) => {
 
 export const getAllOrders = async () => {
   try {
-    const sheets = await getAuthSheets();
+    const sheets = initializeSheets();
     
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
