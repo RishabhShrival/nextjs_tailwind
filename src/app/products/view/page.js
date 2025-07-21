@@ -15,6 +15,11 @@ function ProductViewPageContent() {
   const [zoomModalOpen, setZoomModalOpen] = useState(false);
   const [zoomedImage, setZoomedImage] = useState('');
 
+  // Helper function to check if URL is from Google Drive
+  const isGoogleDriveUrl = (url) => {
+    return url && (url.includes('drive.google.com') || url.includes('googleusercontent.com'));
+  };
+
   const fetchProduct = useCallback(async () => {
     try {
       setLoading(true);
@@ -198,18 +203,36 @@ function ProductViewPageContent() {
                   }}
                   onClick={() => openZoomModal(image)}
                 >
-                  <Image 
-                    src={image}
-                    alt={product.name}
-                    width={150}
-                    height={150}
-                    style={{
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'contain',
-                      display: 'block'
-                    }}
-                  />
+                  {isGoogleDriveUrl(image) ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img 
+                      src={image}
+                      alt={product.name}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        display: 'block'
+                      }}
+                      onError={(e) => {
+                        console.error('Image failed to load:', image);
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  ) : (
+                    <Image 
+                      src={image}
+                      alt={product.name}
+                      width={150}
+                      height={150}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        display: 'block'
+                      }}
+                    />
+                  )}
                 </div>
               ))}
             </div>
@@ -435,22 +458,45 @@ function ProductViewPageContent() {
           >
             &times;
           </span>
-          <Image
-            src={zoomedImage}
-            alt="Zoomed product"
-            width={800}
-            height={600}
-            style={{
-              margin: 'auto',
-              display: 'block',
-              maxWidth: '90%',
-              maxHeight: '90%',
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)'
-            }}
-          />
+          {isGoogleDriveUrl(zoomedImage) ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={zoomedImage}
+              alt="Zoomed product"
+              style={{
+                margin: 'auto',
+                display: 'block',
+                maxWidth: '90%',
+                maxHeight: '90%',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                objectFit: 'contain'
+              }}
+              onError={(e) => {
+                console.error('Zoomed image failed to load:', zoomedImage);
+                e.target.style.display = 'none';
+              }}
+            />
+          ) : (
+            <Image
+              src={zoomedImage}
+              alt="Zoomed product"
+              width={800}
+              height={600}
+              style={{
+                margin: 'auto',
+                display: 'block',
+                maxWidth: '90%',
+                maxHeight: '90%',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)'
+              }}
+            />
+          )}
         </div>
       )}
 

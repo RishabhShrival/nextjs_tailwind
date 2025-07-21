@@ -53,15 +53,22 @@ const arrayToObject = (headers, row) => {
 const convertDriveLink = (url) => {
   if (!url) return url;
   
+  console.log('Original URL:', url); // Debug log
+  
   // Check if it's a Google Drive link
   const driveMatch = url.match(/(?:https?:\/\/)?(?:www\.)?drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
   
   if (driveMatch) {
     const fileId = driveMatch[1];
-    // Convert to direct viewable link
-    return `https://drive.google.com/uc?export=view&id=${fileId}`;
+    
+    // Use the most reliable Google Drive direct image URL format
+    // This format works better with external hotlinking
+    const convertedUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+    console.log('Converted URL (Drive Thumbnail):', convertedUrl); // Debug log
+    return convertedUrl;
   }
   
+  console.log('Not a Drive link, returning original:', url); // Debug log
   return url; // Return original URL if not a Drive link
 };
 

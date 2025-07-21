@@ -17,7 +17,7 @@ export default function ImageTestPage() {
     
     if (driveMatch) {
       const fileId = driveMatch[1];
-      return `https://drive.google.com/uc?export=view&id=${fileId}`;
+      return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
     }
     
     return url;
@@ -30,6 +30,10 @@ export default function ImageTestPage() {
     setConvertedUrl(converted);
     setImageLoaded(false);
     setImageError(false);
+    
+    // Log for debugging
+    console.log('Testing URL:', testUrl);
+    console.log('Converted URL:', converted);
   };
 
   const handleImageLoad = () => {
@@ -40,6 +44,19 @@ export default function ImageTestPage() {
   const handleImageError = () => {
     setImageError(true);
     setImageLoaded(false);
+    
+    // Try alternative formats for Google Drive
+    if (convertedUrl.includes('drive.google.com/uc?export=view')) {
+      const fileId = convertedUrl.match(/id=([a-zA-Z0-9_-]+)/)?.[1];
+      if (fileId) {
+        console.log('Trying alternative format for file ID:', fileId);
+        const alternativeUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+        console.log('Alternative URL:', alternativeUrl);
+        
+        // You could set this as a second attempt
+        // setConvertedUrl(alternativeUrl);
+      }
+    }
   };
 
   return (

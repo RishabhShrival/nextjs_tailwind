@@ -11,6 +11,11 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Helper function to check if URL is from Google Drive
+  const isGoogleDriveUrl = (url) => {
+    return url && (url.includes('drive.google.com') || url.includes('googleusercontent.com'));
+  };
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -205,21 +210,42 @@ export default function ProductsPage() {
                 justifyContent: 'center',
                 padding: '20px'
               }}>
-                <Image 
-                  src={product.imageUrl}
-                  alt={product.name}
-                  width={280}
-                  height={280}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'contain',
-                    filter: 'drop-shadow(0 2px 16px #0007)',
-                    transition: 'transform 0.2s',
-                    background: '#181828',
-                    display: 'block'
-                  }}
-                />
+                {isGoogleDriveUrl(product.imageUrl) ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img 
+                    src={product.imageUrl}
+                    alt={product.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      filter: 'drop-shadow(0 2px 16px #0007)',
+                      transition: 'transform 0.2s',
+                      background: '#181828',
+                      display: 'block'
+                    }}
+                    onError={(e) => {
+                      console.error('Image failed to load:', product.imageUrl);
+                      e.target.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <Image 
+                    src={product.imageUrl}
+                    alt={product.name}
+                    width={280}
+                    height={280}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      filter: 'drop-shadow(0 2px 16px #0007)',
+                      transition: 'transform 0.2s',
+                      background: '#181828',
+                      display: 'block'
+                    }}
+                  />
+                )}
               </div>
               
               {/* Product Details */}
